@@ -444,7 +444,9 @@ char tianasc3[] =
 void buildin_tianjiao(uint32_t argc, char** argv) {
 
     // printf("%s", tianasc3);
-    printf("%s", tianasc2);
+    printf("%s\n", tianasc2);
+    printf("Name: tianjiaoOS      Uptime: 2025.9.24       Version: 0.1\n");
+    printf("Host: erdaitianjiao  ");
     return;
 
 }
