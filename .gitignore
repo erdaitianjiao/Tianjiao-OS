@@ -1,8 +1,11 @@
 # ignore dir 
 
 /bochs/bin
-/bochs/hd60M.img
-/bochs/hd80M.img
+/bochs/hd60M.img*
+/bochs/hd80M.img*
 /bochs/share
 /bochs/bochsout.txt
+/bochs-2.6.2
+/bochs-2.6.2.tar.gz
+/book_code
 
