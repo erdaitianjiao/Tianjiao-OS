@@ -27,7 +27,10 @@ SECTION MBT vstart=0x7c00
 	mov bh, 0
 	int 0x10
 
-	; get curse 获得当前光标位置 在光标位置处打印字符串
+	; get curse 获得当前光标位置 在光标位置处打印字符串;
+	; es: bp 为串首地址 这时es = cs
+	; 光标位置在dx寄存器里面
+	; cx为字符串长度
 	mov ax, message
 	mov bp, ax
 	mov cx, 5
