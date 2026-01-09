@@ -11,3 +11,5 @@
 *bochs-2.6.2*
 /book_code/*
 /workshop/tags
+/bochs/bochs*
+/build/*

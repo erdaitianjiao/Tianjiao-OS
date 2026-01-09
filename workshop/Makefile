@@ -1,4 +1,4 @@
-BUILD_DIR = ./build
+BUILD_DIR = ../build
 ENTRY_POINT = 0xc0001500
 AS = nasm
 CC = gcc
@@ -173,7 +173,7 @@ $(BUILD_DIR)/kernel.bin: $(OBJS)
 
 hd:
 	dd if=$(BUILD_DIR)/kernel.bin \
-           of=/home/tianjiao/workspace/kernel/Tianjiao-OS/bochs/hd60M.img \
+           of=../bochs/hd60M.img \
            bs=512 count=200 seek=9 conv=notrunc
 
 clean:
