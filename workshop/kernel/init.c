@@ -25,6 +25,9 @@ void init_all(void) {
     syscall_init();             // 初始化系统调用
     intr_enable();              // 后面需要 
     ide_init();                 // 初始化硬盘
+	
+	sys_malloc(1);
+
     filesys_init();             // 文件系统初始化
 
 }

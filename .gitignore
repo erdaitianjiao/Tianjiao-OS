@@ -5,4 +5,9 @@
 /bochs/hd80M.img
 /bochs/share
 /bochs/bochsout.txt
-
+*.swp
+*.o
+*.bin
+*bochs-2.6.2*
+/book_code/*
+/workshop/tags

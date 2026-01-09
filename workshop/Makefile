@@ -173,7 +173,7 @@ $(BUILD_DIR)/kernel.bin: $(OBJS)
 
 hd:
 	dd if=$(BUILD_DIR)/kernel.bin \
-           of=/home/erdai/myself/bochs/hd60M.img \
+           of=/home/tianjiao/workspace/kernel/Tianjiao-OS/bochs/hd60M.img \
            bs=512 count=200 seek=9 conv=notrunc
 
 clean:
