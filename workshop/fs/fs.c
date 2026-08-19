@@ -231,11 +231,11 @@ static void partition_format(struct partition* part) {
 // 将最上层的路径名称解析出来
 char* path_parse(char* pathname, char* name_store) {
 
-    if (pathname[0] = '/') {
+    if (pathname[0] == '/') {
 
         // 根目录不需要单独解析
         // 如果路径出现1个或者多个连续的字符 '/' 将这些跳过 如"///a/b"
-        while ((++ pathname) == '/');
+        while (*(++ pathname) == '/');
 
     }
 
@@ -781,7 +781,7 @@ rollback:       // 因为某步骤操作失败而回滚
             break;
 
     }
-    sys_close(io_buf);
+    sys_free(io_buf);
     return -1;
 
 }
@@ -789,9 +789,9 @@ rollback:       // 因为某步骤操作失败而回滚
 // 目录打开成功后返回目录指针 失败返回NULL
 struct dir* sys_opendir(const char* name) {
 
-    ASSERT(strlen(name) < MAX_FILE_NAME_LEN);
+    ASSERT(strlen(name) < MAX_PATH_LEN);
     // 如果是根目录 直接返回&root_dir
-    if (name[0] == '/' && (name[1] == 0 || name[1] == '.')) {
+    if (name[0] == '/' && (name[1] == 0 || name[0] == '.')) {
 
         return &root_dir;
 
@@ -876,25 +876,30 @@ int32_t sys_rmdir(const char* pathname) {
         printk("In %s, sub path %s not exist\n", pathname, searched_record.searched_path);
 
     } else {
+		
+		if (searched_record.file_type == FT_REGULAR) {
+			printk("%s is regular file!\n", pathname);
+		} else {
 
-        struct dir* dir = dir_open(cur_part, inode_no);
-        // 非空目录不能删除
-        if (!dir_is_empty(dir)) {
+        	struct dir* dir = dir_open(cur_part, inode_no);
+        	// 非空目录不能删除
+        	if (!dir_is_empty(dir)) {
             
-            printk("dir %s is not empty, it is not allowed to delete a nonempty directory\n", pathname);
+            	printk("dir %s is not empty, it is not allowed to delete a nonempty directory\n", pathname);
 
-        } else {
+        	} else {
 
-            if (!dir_remove(searched_record.parent_dir, dir)) {
+            	if (!dir_remove(searched_record.parent_dir, dir)) {
 
-                retval = 0;
+                	retval = 0;
 
-            }
+            	}
 
-        }
-        dir_close(dir);
+        	}
+        	dir_close(dir);
 
-    }
+    	}
+	}
 
     dir_close(searched_record.parent_dir);
     return retval;
@@ -999,6 +1004,7 @@ char* sys_getcwd(char* buf, uint32_t size) {
 
         buf[0] = '/';
         buf[1] = 0;
+        sys_free(io_buf);
         return buf;
 
     }
@@ -1206,4 +1212,3 @@ void filesys_init() {
     }
 
 }
-

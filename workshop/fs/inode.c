@@ -276,7 +276,7 @@ void inode_release(struct partition* part, uint32_t inode_no) {
 
     }
     // 2回收改inode所占用的inode
-    bitmap_set(&cur_part->inode_bitmap, inode_no, 0);
+    bitmap_set(&part->inode_bitmap, inode_no, 0);
     bitmap_sync(cur_part, inode_no, INODE_BITMAP);
 
     // debug

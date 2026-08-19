@@ -1,10 +1,10 @@
 # ignore dir 
 
 /bochs/bin
-/bochs/hd60M.img
-/bochs/hd80M.img
+/img/hd60M.img
+/img/hd80M.img
 /bochs/share
-/bochs/bochsout.txt
+/img/bochsout.txt
 *.swp
 *.o
 *.bin

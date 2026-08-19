@@ -19,7 +19,7 @@ bool bitmap_scan_test(struct bitmap* btmp, uint32_t bit_idx) {
     uint32_t byte_idx = bit_idx / 8;        // 向下取整用于索引数组下标
     uint32_t bit_odd  = bit_idx % 8;        // 取余得到索引数组里面的位
 
-    return (btmp->bits[bit_idx] & (BITMAP_MASK << bit_odd));
+    return (btmp->bits[byte_idx] & (BITMAP_MASK << bit_odd));
 
 }
 

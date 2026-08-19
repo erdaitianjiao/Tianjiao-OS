@@ -389,7 +389,9 @@ int32_t file_write(struct file* file, const void* buf, uint32_t count) {
 
             // 第二种情况 旧数据在12个直接块内 新数据将使用间接块
             // 先将有剩余空间的可继续使用的扇区地址收集到all_blocks
-            all_blocks[block_idx] = file->fd_inode->i_sectors[block_idx];
+            block_idx = file_has_used_blocks -1;
+
+			all_blocks[block_idx] = file->fd_inode->i_sectors[block_idx];
             
             // 指向旧数据所在的最后一个扇区 
             block_lba = block_bitmap_alloc(cur_part);
@@ -500,7 +502,8 @@ int32_t file_write(struct file* file, const void* buf, uint32_t count) {
         src += chunk_size;                      // 将指针推移到下个新数据
         file->fd_inode->i_size += chunk_size;   // 更新文件大小    
         file->fd_pos += chunk_size;
-        bytes_written -= chunk_size;
+        bytes_written += chunk_size;
+		size_left -= chunk_size;
 
     }
     inode_sync(cur_part, file->fd_inode, io_buf);
@@ -510,10 +513,10 @@ int32_t file_write(struct file* file, const void* buf, uint32_t count) {
 
 }
 
-// 从文件file中读取count个字节写入buf 返回读出的字节数 是发哦文件尾则返回-1
+// 从文件file中读取count个字节写入buf 返回读出的字节数 是文件尾则返回-1
 int32_t file_read(struct file* file, void* buf, uint32_t count) {
 
-    uint32_t* buf_dst = (uint8_t*)buf;
+    uint8_t* buf_dst = (uint8_t*)buf;
     uint32_t size = count, size_left = size;
 
     // 若要读取的字节数超过了文件可读的剩余量 就用剩余量作为待读取的字节数
@@ -579,7 +582,7 @@ int32_t file_read(struct file* file, void* buf, uint32_t count) {
         // 情况一 起始和终止都在直接快
         if (block_read_end_idx < 12) {
 
-            block_idx = block_read_end_idx;
+            block_idx = block_read_start_idx;
             while (block_idx <= block_read_end_idx) {
 
                 all_blocks[block_idx] = file->fd_inode->i_sectors[block_idx];
@@ -587,14 +590,14 @@ int32_t file_read(struct file* file, void* buf, uint32_t count) {
 
             }
 
-        } else if (block_read_start_idx < 12 && block_read_end_idx > 12) {
+        } else if (block_read_start_idx < 12 && block_read_end_idx >= 12) {
 
             // 情况二 起始在直接块 终止在间接块
             // 先写直接块到all_blocks
             block_idx = block_read_start_idx;
             while (block_idx < 12) {
 
-                all_blocks[block_idx] = file->fd_inode->i_sectors[12];
+                all_blocks[block_idx] = file->fd_inode->i_sectors[block_idx];
                 block_idx ++;
 
             }
@@ -606,7 +609,14 @@ int32_t file_read(struct file* file, void* buf, uint32_t count) {
             // 将一级间接块表读进来写入到第13个块的位置之后
             ide_read(cur_part->my_disk, indirect_block_table, all_blocks + 12, 1);
 
-        }
+        } else {
+			ASSERT(file->fd_inode->i_sectors[12] != 0);
+			
+			indirect_block_table = file->fd_inode->i_sectors[12];
+
+			ide_read(cur_part->my_disk, indirect_block_table, all_blocks + 12, 1);
+		
+		}
 
     }
     // 用到的块地址已经收集到all_blocks中 现在开始读数据
@@ -653,11 +663,11 @@ void bitmap_sync(struct partition* part, uint32_t bit_idx, uint8_t btmp) {
 
         case INODE_BITMAP:
             sec_lba = part->sb->inode_bitmap_lba + off_sec;
-            bitmap_off = part->block_bitmap.bits + off_sec;
+            bitmap_off = part->inode_bitmap.bits + off_size;
             break;
         case BLOCK_BITMAP:
             sec_lba = part->sb->block_bitmap_lba + off_sec;
-            bitmap_off = part->block_bitmap.bits + off_sec;
+            bitmap_off = part->block_bitmap.bits + off_size;
             break;
 
     }
